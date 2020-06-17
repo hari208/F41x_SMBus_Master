@@ -1,23 +1,10 @@
 //-----------------------------------------------------------------------------
 // F41x_SMBus_Master.c
 //-----------------------------------------------------------------------------
-// Copyright 2006 Silicon Laboratories, Inc.
-// http://www.silabs.com
-//
-// Program Description:
-//
-// Example software to demonstrate the C8051F41x SMBus interface in
-// Master mode.
-// - Interrupt-driven SMBus implementation
-// - Only master states defined (no slave or arbitration)
-// - 1-byte SMBus data holders used for each transmit and receive
-// - Timer1 used as SMBus clock source
-// - Timer3 used by SMBus for SCL low timeout detection
-// - SCL frequency defined by <SMB_FREQUENCY> constant
-// - ARBLOST support included
+
 // - Pinout:
-//    P0.0 -> SDA (SMBus)
-//    P0.1 -> SCL (SMBus)
+//    P0.3 -> SDA (SMBus)
+//    P0.4 -> SCL (SMBus)
 //
 //    P2.1 -> LED
 //
@@ -45,17 +32,7 @@
 // Tool chain:     Raisonance / Keil
 // Command Line:   None
 //
-// Release 1.2 / 30 OCT 2013 (TP/SY)
-//    -Changed "=+" operation with a bit variable to "|=" in SMBus ISR
-//
-// Release 1.1 / 11 MAR 2010 (GP)
-//    -Tested with Raisonance
-//
-// Release 1.0
-//    -Initial Revision (TP)
-//    -30 MAR 2006
-//
-
+// 
 //-----------------------------------------------------------------------------
 // Includes
 //-----------------------------------------------------------------------------
@@ -108,8 +85,8 @@ unsigned long NUM_ERRORS;              // Counter for the number of errors.
 
 sbit LED = P2^1;                       // LED on port P2.1
 
-sbit SDA = P0^0;                       // SMBus on P0.0
-sbit SCL = P0^1;                       // and P0.1
+sbit SDA = P0^3;                       // SMBus on P0.3
+sbit SCL = P0^4;                       // and P0.4
 
 //-----------------------------------------------------------------------------
 // Function PROTOTYPES
@@ -329,8 +306,8 @@ void Timer3_Init (void)
 //
 // Configure the Crossbar and GPIO ports.
 //
-// P0.0   digital   open-drain    SMBus SDA
-// P0.1   digital   open-drain    SMBus SCL
+// P0.3   digital   open-drain    SMBus SDA
+// P0.4   digital   open-drain    SMBus SCL
 //
 // P2.1   digital   push-pull     LED
 //
@@ -341,15 +318,10 @@ void Timer3_Init (void)
 //
 void PORT_Init (void)
 {
-   P0MDOUT = 0x00;                     // All P0 pins open-drain output
-
-   P2MDOUT |= 0x02;                    // Make the LED (P2.1) a push-pull
-                                       // output
-
-   XBR0 = 0x04;                        // Enable SMBus pins
-   XBR1 = 0x40;                        // Enable crossbar and weak pull-ups
-
-   P0 = 0xFF;
+    P0MDOUT   = 0x02;
+    P0SKIP    = 0x07;
+    XBR0      = 0x04;
+    XBR1      = 0x40;
 }
 
 //-----------------------------------------------------------------------------
